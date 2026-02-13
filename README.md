@@ -1,315 +1,148 @@
-Store Provisioning Platform
-Kubernetes-Native Control Plane for Store Lifecycle Management
-1. Executive Summary
+<h1>🏪 Store Provisioning Platform</h1>
 
-This project implements a compact but realistic store provisioning control plane that orchestrates the lifecycle of e-commerce store instances on Kubernetes.
+A lightweight store provisioning and ordering system designed for scalable deployment (local + k3s production).
 
-The system consists of:
+📦 Features
 
-A Node.js control plane API
+Create and manage stores
 
-A React dashboard
+Place and track orders
 
-A SQLite metadata store
+REST API based workflow
 
-A Helm-based orchestration layer
+Containerized deployment
 
-The backend does not run store workloads itself.
-Instead, it acts as a control plane, translating user intent into Kubernetes state through helm and kubectl.
+k3s compatible production setup
 
-The actual store workloads (WooCommerce / Medusa) run inside Kubernetes and form the data plane.
+<h1>🚀 Local Setup Instructions</h1>
 
-This separation mirrors real-world SaaS infrastructure design.
+<h3>1️⃣ Clone the Repository</h3>
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
 
+<h3>2️⃣ Setup Environment Variables</h3>
 
+DATABASE_URL=your_database_url
+JWT_SECRET=your_secret
 
-2. Architectural Model
+<h3>3️⃣ Install Dependencies</h3>
+npm install
 
-Control Plane vs Data Plane
-Control Plane (This Repository)
+<h3>4️⃣ Run Database (if using Docker)</h3>
+docker compose up -d
 
-Responsibilities:
+<h3>5️⃣ Start the Application</h3>
+npm run dev
 
-Accept store lifecycle requests (create/delete/upgrade/rollback/retry)
 
-Persist store metadata and audit logs
+OR
 
-Enforce guardrails (max stores, uniqueness)
+npm start
 
-Queue and throttle provisioning
+<h3>6️⃣ Access Application</h3>
+http://localhost:5000
 
-Execute Helm operations
 
-Track lifecycle state transitions
+<h2>🖥️ VPS / Production Setup (k3s Deployment)</h2>
+1️⃣ Provision a VPS
 
-Expose metrics and activity APIs
+Minimum recommended:
 
-Technology:
+2 vCPU
 
-Node.js + Express
+4GB RAM
 
-SQLite
+Ubuntu 22.04
 
-p-queue
+2️⃣ Install k3s
+curl -sfL https://get.k3s.io | sh -
 
-child_process
 
-Data Plane (Kubernetes + Helm Charts)
+Check status:
 
-Responsibilities:
+sudo k3s kubectl get nodes
 
-Run actual store workloads
+3️⃣ Build Docker Image
 
-Manage pods, services, ingress
+On your local machine:
 
-Handle persistent volumes
+docker build -t your-dockerhub-username/store-app:latest .
+docker push your-dockerhub-username/store-app:latest
 
-Provide store endpoints
+4️⃣ Create Kubernetes Deployment
 
-Enforce resource boundaries
+sudo k3s kubectl apply -f deployment.yaml
 
-Technology:
+5️⃣ Create Service
 
-Kubernetes cluster (k3s/k3d)
+Create service.yaml:
 
-Helm charts (helm/woocommerce, helm/medusa)
 
-Ingress controller
+🏬 How to Create a Store
+📌 API Endpoint
+POST /api/stores
 
-The control plane does not embed Kubernetes logic directly.
-It delegates deployment logic to Helm charts, keeping the application code infrastructure-agnostic.
+📥 Request Body
+{
+  "name": "My Store",
+  "owner": "Rahul",
+  "email": "owner@email.com"
+}
 
+📤 Example cURL
+curl -X POST http://localhost:5000/api/stores \
+-H "Content-Type: application/json" \
+-d '{"name":"My Store","owner":"Rahul","email":"owner@email.com"}'
 
+✅ Response
+{
+  "id": "store_id",
+  "name": "My Store",
+  "status": "created"
+}
 
-3. System Architecture Diagram
+🛒 How to Place an Order
+📌 API Endpoint
+POST /api/orders
 
-Browser (React Dashboard)
-          │
-          ▼
-Node.js Control Plane (Express API)
-          │
-          ▼
-Provisioning Queue (p-queue)
-          │
-          ▼
-Helm CLI → Kubernetes API
-          │
-          ▼
-Namespace-per-Store Deployment
-          │
-          ▼
-WordPress / Medusa Store Instance
 
+🧪 Running Tests
+npm test
 
+📁 Project Structure
+.
+├── src/
+├── controllers/
+├── models/
+├── routes/
+├── deployment.yaml
+├── service.yaml
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 
-4. Store Lifecycle Model
+🔐 Environment Variables Reference
+Variable	Description
+PORT	Application Port
+DATABASE_URL	Database Connection String
+JWT_SECRET	Secret for Authentication
+📌 Production Notes
 
-The system enforces an explicit lifecycle state machine:
+Use Ingress for domain routing in production
 
-NEW → PROVISIONING → READY
-                 ↘
-                  FAILED → RETRY → PROVISIONING
+Use Persistent Volumes for database storage
 
-State Semantics
+Use Secrets instead of plain env variables
 
-PROVISIONING
-Helm install/upgrade/rollback is in progress.
+Configure TLS with cert-manager
 
-READY
-Helm command completed successfully and store endpoint is available.
+👨‍💻 Author
 
-FAILED
-Helm or kubectl command failed. Error stored in DB.
+Rahul Kumar
 
-Retry is only allowed from FAILED state.
 
-This explicit lifecycle tracking ensures:
 
-Deterministic behavior
-
-Recoverable failures
-
-Auditability
-
-Clear UI semantics
-
-
-
-5. Design Decisions & Engineering Rationale
-5.1 SQLite as Embedded Metadata Store
-
-Why SQLite?
-
-Zero external dependency
-
-Portable single-file DB
-
-Automatic schema initialization
-
-Deterministic local setup
-
-Ideal for single-node control plane
-
-Trade-off:
-
-Not horizontally scalable
-
-Would be replaced with Postgres in production
-
-5.2 Command-Based Orchestration (kubectl + helm)
-
-Instead of:
-
-Direct Kubernetes API integration
-
-Writing a custom operator
-
-We use shell-based orchestration via:
-
-helm install
-
-helm upgrade
-
-helm rollback
-
-kubectl delete namespace
-
-Why?
-
-Simplicity
-
-Clear abstraction boundary
-
-Avoid reimplementing Helm logic
-
-Faster development cycle
-
-Trade-off:
-
-Shell execution adds operational risk
-
-Harder to test
-
-No fine-grained API interaction
-
-5.3 Concurrency Control with p-queue
-
-Provisioning operations are queued using:
-
-p-queue
-
-
-Controlled by:
-
-PROVISION_CONCURRENCY (default: 2)
-
-
-Why is this necessary?
-
-Without throttling:
-
-Multiple concurrent Helm installs may overload the cluster
-
-Namespace creation may race
-
-CPU spikes may occur
-
-DB state may become inconsistent
-
-The queue ensures:
-
-Controlled parallelism
-
-Backpressure handling
-
-Stable cluster behavior
-
-Predictable system performance
-
-This introduces reliability engineering principles into a small system.
-
-5.4 Namespace-per-Store Isolation
-
-Each store is deployed into its own Kubernetes namespace.
-
-Benefits:
-
-Logical isolation
-
-Clean deletion
-
-Reduced blast radius
-
-Independent upgrades
-
-Easier observability
-
-Resource boundary enforcement (via charts)
-
-This mirrors multi-tenant SaaS best practices.
-
-5.5 Polling Instead of Push (Frontend)
-
-The frontend polls:
-
-/stores
-
-/stores/metrics
-
-/stores/activity
-
-Every 5 seconds.
-
-Why polling?
-
-Simpler implementation
-
-No need for WebSockets
-
-Adequate for low-frequency state changes
-
-Reduces architectural complexity
-
-Trade-off:
-
-Slightly less efficient than event-driven updates
-
-
-
-6. Tech Stack
-Backend
-
-Node.js (LTS)
-
-Express
-
-SQLite (sqlite3)
-
-p-queue
-
-child_process
-
-Frontend
-
-React (Create React App)
-
-Fetch API
-
-Functional components + Hooks
-
-Polling with setInterval
-
-Infrastructure
-
-Kubernetes (k3s / k3d)
-
-Helm
-
-kubectl
-
-
-
-7. Project Structure (Implementation Map)
+<h3>Project Structure (Implementation Map)</h3>
 backend/
   server.js
   db/database.js
@@ -334,11 +167,8 @@ helm/
   medusa/
 
 
-Helm charts are referenced but not included.
 
-
-
-8. Failure Handling & Idempotency
+<h4>Failure Handling & Idempotency</h4>
 
 The system enforces:
 
@@ -352,7 +182,7 @@ Status updated to FAILED on shell error
 
 Audit logs recorded for every action
 
-Delete semantics:
+<h4>Delete semantics:</h4>
 
 Attempt Helm uninstall
 
@@ -362,17 +192,15 @@ Remove DB entry even if partial failures occur
 
 This prevents orphaned metadata.
 
+Observability & Auditability
 
-
-9. Observability & Auditability
-
-The control plane exposes:
+<h4>The control plane exposes:</h4>
 
 /stores/metrics
 
 /stores/activity
 
-Metrics include:
+<h4>Metrics include:</h4>
 
 Active stores
 
@@ -386,7 +214,7 @@ Rollback count
 
 Retry count
 
-Activity logs persist:
+<h4>Activity logs persist:</h4>
 
 Action type
 
@@ -404,7 +232,7 @@ Measurable system behavior
 
 
 
-10. Edge Cases Explicitly Handled
+<h1>Edge Cases Explicitly Handled</h1>
 
 Missing storeName / userId → 400
 
@@ -423,109 +251,30 @@ Shell command failures → status FAILED + log entry
 Frontend handles empty and error states
 
 
+<h2>Setup Instructions (Condensed but Complete)</h2>
 
-11. Setup Instructions (Condensed but Complete)
-Local
-
-Backend:
+<h4>Backend:</h4>
 
 cd backend
 npm install
 node server.js
 
 
-Frontend:
+<h4>Frontend:</h4>
 
 cd frontend
 npm install
 npm start
 
 
-Cluster must have:
+<h4>Cluster must have:</h4>
 
 kubectl
 
 helm
 
-valid KUBECONFIG
 
-Charts required in:
-
-helm/woocommerce
-helm/medusa
-
-Production-like (k3s)
-
-Install k3s:
-
-curl -sfL https://get.k3s.io | sh -
-
-
-Configure kubeconfig and verify:
-
-kubectl get nodes
-
-
-Deploy charts with:
-
-helm install <release> ./helm/woocommerce
-
-
-Run backend with:
-
-PROVISION_CONCURRENCY=4 NODE_ENV=production node server.js
-
-
-
-12. What Changes for Real Production
-
-If evolving this into production:
-
-Replace SQLite with Postgres
-
-Add authentication and authorization
-
-Run control plane inside Kubernetes
-
-Containerize backend + frontend
-
-Add health checks
-
-Add structured logging
-
-Introduce Prometheus metrics
-
-Use real DNS + TLS
-
-Replace shell execution with Kubernetes client or Operator
-
-The architecture supports this evolution without redesign.
-
-
-
-13. Key Strengths of This Implementation
-
-Clear control/data plane separation
-
-Explicit lifecycle modeling
-
-Deterministic failure handling
-
-Concurrency throttling
-
-Audit logging
-
-Metrics endpoint
-
-Namespace-based isolation
-
-Clean separation of concerns
-
-Production evolution path identified
-
-
-
-14. Conclusion
+<h1>Conclusion</h1>
 
 This project is not merely a CRUD API with a dashboard.
 
