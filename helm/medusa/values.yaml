@@ -1,0 +1,4 @@
+host: example.local
+image:
+  repository: medusajs/medusa
+  tag: latest

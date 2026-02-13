@@ -1,0 +1,34 @@
+storeName: store-demo
+host: store-demo.local
+
+wordpress:
+  # image: wordpress:6.5-php8.2-apache -> wasent getting woocommerce plugin in site
+  # wordpress:latest
+  image: wordpress:6.9-php8.2-apache
+
+mysql:
+  image: mysql:8.0
+  storage: 5Gi
+
+database:
+  name: wordpress
+  user: wpuser
+  password: wppassword
+  rootPassword: rootpassword
+
+
+resources:
+  quota:
+    enabled: true
+    requestsCpu: "1"
+    requestsMemory: 1Gi
+    limitsCpu: "2"
+    limitsMemory: 2Gi
+    maxPVCs: "2"
+    maxStorage: 10Gi
+
+  defaults:
+    defaultCpu: 500m
+    defaultMemory: 512Mi
+    defaultRequestCpu: 250m
+    defaultRequestMemory: 256Mi

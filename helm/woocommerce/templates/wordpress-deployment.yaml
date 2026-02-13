@@ -1,0 +1,121 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: wordpress
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: wordpress
+#   template:
+#     metadata:
+#       labels:
+#         app: wordpress
+#     spec:
+#       containers:
+#       - name: wordpress
+#         image: {{ .Values.wordpress.image }}
+#         ports:
+#           - containerPort: 80
+
+#         readinessProbe:
+#           httpGet:
+#             path: /
+#             port: 80
+#           initialDelaySeconds: 15
+#           periodSeconds: 5
+#           failureThreshold: 3
+
+#         livenessProbe:
+#           httpGet:
+#             path: /
+#             port: 80
+#           initialDelaySeconds: 30
+#           periodSeconds: 10
+#           failureThreshold: 5
+
+#           env:
+#             - name: WORDPRESS_DB_HOST
+#               value: mysql
+#             - name: WORDPRESS_DB_NAME
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: mysql-secret
+#                   key: MYSQL_DATABASE
+#             - name: WORDPRESS_DB_USER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: mysql-secret
+#                   key: MYSQL_USER
+#             - name: WORDPRESS_DB_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: mysql-secret
+#                   key: MYSQL_PASSWORD
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: {{ .Values.wordpress.image }}
+          ports:
+            - containerPort: 80
+
+          # ✅ DATABASE ENV VARIABLES (CORRECT LEVEL)
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: mysql
+            - name: WORDPRESS_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_DATABASE
+            - name: WORDPRESS_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_USER
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+
+
+          
+          # startupProbe:
+          #   httpGet:
+          #    path: /
+          #    port: 80
+          #   failureThreshold: 30
+          #   periodSeconds: 10
+          #  # ✅ READINESS PROBE
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 80
+          #   initialDelaySeconds: 120
+          #   periodSeconds: 10
+          #   failureThreshold: 3
+
+          # # ✅ LIVENESS PROBE
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: 80
+          #   initialDelaySeconds: 120
+          #   periodSeconds: 10
+          #   failureThreshold: 6
+      

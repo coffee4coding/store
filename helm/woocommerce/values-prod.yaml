@@ -1,0 +1,15 @@
+replicaCount: 2
+
+host: example.com
+
+resources:
+  requests:
+    cpu: "300m"
+    memory: "256Mi"
+  limits:
+    cpu: "800m"
+    memory: "512Mi"
+
+mysql:
+  storageClass: longhorn
+  storageSize: 10Gi

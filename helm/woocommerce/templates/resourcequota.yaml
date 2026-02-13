@@ -1,0 +1,14 @@
+{{- if .Values.resources.quota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: store-quota
+spec:
+  hard:
+    requests.cpu: "{{ .Values.resources.quota.requestsCpu }}"
+    requests.memory: "{{ .Values.resources.quota.requestsMemory }}"
+    limits.cpu: "{{ .Values.resources.quota.limitsCpu }}"
+    limits.memory: "{{ .Values.resources.quota.limitsMemory }}"
+    persistentvolumeclaims: "{{ .Values.resources.quota.maxPVCs }}"
+    requests.storage: "{{ .Values.resources.quota.maxStorage }}"
+{{- end }}
