@@ -23,9 +23,19 @@ A lightweight store provisioning and ordering system designed for scalable deplo
 
 <h3>1️⃣ Clone the Repository</h3>
 
-<pre><code>git clone https://github.com/your-username/your-repo.git
-cd your-repo
-</code></pre>
+<pre>
+<ul>
+  <li><code>cd ~</code></li>
+  <li>git clone https://github.com/coffee4coding/store.git </li>
+   <li><code>cd store-platform</code></li>
+  <li><code>chmod +x setup.sh</code></li>
+  <li><code>./setup.sh</code></li>
+</ul>
+
+</pre>
+
+<h2>If not working go for step by step setup(Review New_Laptop_Setup.md file) </h2>
+
 
 <h3>2️⃣ Setup Environment Variables</h3>
 
