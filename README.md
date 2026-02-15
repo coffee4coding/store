@@ -32,7 +32,7 @@ A lightweight store provisioning and ordering system designed for scalable deplo
   <li><code>./setup.sh</code></li>
 </ul>
 Run this if desktop icon is not running:
-  gio set ~/Desktop/store.desktop metadata::trusted true
+  click on it and select allow launching
 
 </pre>
 
