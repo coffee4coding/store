@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PROJECT_DIR="$HOME/store-platform"
+PROJECT_DIR="$HOME/store"
 
 echo "Installing dependencies..."
 
@@ -17,7 +17,7 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 echo "Creating Kubernetes cluster..."
-k3d cluster create store-platform --agents 2 -p "80:80@loadbalancer"
+k3d cluster create store --agents 2 -p "80:80@loadbalancer"
 
 echo "Installing backend dependencies..."
 cd backend
@@ -36,11 +36,11 @@ echo "Creating Desktop Launcher..."
 
 mkdir -p ~/.local/share/applications
 
-cat <<EOF > ~/.local/share/applications/store-platform.desktop
+cat <<EOF > ~/.local/share/applications/store.desktop
 [Desktop Entry]
 Version=1.0
-Name=Store Platform
-Comment=Start or Stop Store Platform
+Name=Store
+Comment=Start or Stop Store
 Exec=$PROJECT_DIR/start.sh
 Icon=media-playback-start
 Terminal=false
@@ -48,12 +48,12 @@ Type=Application
 Categories=Development;
 EOF
 
-chmod +x ~/.local/share/applications/store-platform.desktop
+chmod +x ~/.local/share/applications/store.desktop
 
-cp ~/.local/share/applications/store-platform.desktop ~/Desktop/
-chmod +x ~/Desktop/store-platform.desktop
+cp ~/.local/share/applications/store.desktop ~/Desktop/
+chmod +x ~/Desktop/store.desktop
 
 echo ""
 echo "Setup Complete!"
 echo "Please logout and login again for Docker permissions."
-echo "After that, click the Store Platform icon on Desktop."
+echo "After that, click the Store icon on Desktop."
