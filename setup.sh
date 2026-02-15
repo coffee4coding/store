@@ -5,7 +5,12 @@ PROJECT_DIR="$HOME/store"
 echo "Installing dependencies..."
 
 sudo apt update
-sudo apt install -y curl git docker.io nodejs npm
+sudo apt install -y curl git docker.io
+
+# Install Node.js 20 from NodeSource
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
 
 # Add user to docker group (no password needed after relogin)
 sudo usermod -aG docker $USER
