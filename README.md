@@ -27,7 +27,7 @@ A lightweight store provisioning and ordering system designed for scalable deplo
 <ul>
   <li><code>cd ~</code></li>
   <li>git clone https://github.com/coffee4coding/store.git </li>
-   <li><code>cd store-platform</code></li>
+   <li><code>cd store</code></li>
   <li><code>chmod +x setup.sh</code></li>
   <li><code>./setup.sh</code></li>
 </ul>
