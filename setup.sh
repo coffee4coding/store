@@ -36,24 +36,31 @@ echo "Creating Desktop Launcher..."
 
 mkdir -p ~/.local/share/applications
 
-cat <<EOF > ~/.local/share/applications/store.desktop
+DESKTOP_FILE="$HOME/.local/share/applications/store.desktop"
+
+cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Version=1.0
 Name=Store
 Comment=Start or Stop Store
-Exec=$PROJECT_DIR/start.sh
-Icon=media-playback-start
-Terminal=false
+Exec=/bin/bash $PROJECT_DIR/start.sh
+Icon=utilities-terminal
+Terminal=true
 Type=Application
 Categories=Development;
 EOF
 
-chmod +x ~/.local/share/applications/store.desktop
+chmod +x "$DESKTOP_FILE"
+chmod +x "$PROJECT_DIR/start.sh"
 
-cp ~/.local/share/applications/store.desktop ~/Desktop/
-chmod +x ~/Desktop/store.desktop
+# Update desktop database
+update-desktop-database ~/.local/share/applications 2>/dev/null
 
-echo ""
-echo "Setup Complete!"
-echo "Please logout and login again for Docker permissions."
-echo "After that, click the Store icon on Desktop."
+# Copy to Desktop (if Desktop exists)
+if [ -d "$HOME/Desktop" ]; then
+    cp "$DESKTOP_FILE" "$HOME/Desktop/store.desktop"
+    chmod +x "$HOME/Desktop/store.desktop"
+fi
+
+echo "Desktop icon created successfully."
+
