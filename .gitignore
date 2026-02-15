@@ -36,3 +36,12 @@ Thumbs.db
 # Coverage
 coverage/
 .nyc_output/
+
+
+# Runtime toggle files
+app.pid
+.lock
+backend/backend.log
+
+# React production build (generated during setup)
+frontend/build/

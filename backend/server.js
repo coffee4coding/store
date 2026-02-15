@@ -1,5 +1,6 @@
 const express = require("express")
 const cors = require("cors")
+const path = require("path")
 
 require("./db/database")   //← Added THIS LINE he database file is only created when database.js is actually required (loaded) by your server.
 
@@ -18,7 +19,17 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// API routes
 app.use("/stores", storeRoutes)
+
+// Serve React build files
+app.use(express.static(path.join(__dirname, "../frontend/build")))
+
+// Handle React routing (for non-API routes)
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"))
+})
+
 
 app.listen(5000, () => {
   console.log("Provisioning API running on port 5000")
