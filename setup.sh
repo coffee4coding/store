@@ -21,8 +21,13 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 # Install Helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-echo "Creating Kubernetes cluster..."
-k3d cluster create store --agents 2 -p "80:80@loadbalancer"
+echo; echo "Creating Kubernetes cluster..."
+if k3d cluster list store | grep -q "store"; then
+    echo "Cluster already exists"
+else
+    k3d cluster create store --agents 2 -p "80:80@loadbalancer"
+fi
+
 
 echo "Installing backend dependencies..."
 cd backend
