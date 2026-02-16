@@ -100,9 +100,19 @@ sudo systemctl start docker
 
 <h3>Create Cluster</h3>
 
-<pre><code>k3d cluster create store-platform \
+<pre><code>k3d cluster create store \
  --agents 2 \
  -p "80:80@loadbalancer"
+</code></pre>
+
+<h3>Code Install</h3>
+
+<pre><code>sudo snap install code --classic
+</code></pre>
+
+<h3>Kuectl Install</h3>
+
+<pre><code>sudo snap install kubectl --classic
 </code></pre>
 
 <h3>Verify</h3>
@@ -140,12 +150,12 @@ sudo systemctl start docker
 <h2>9. Clone Your Project</h2>
 
 <pre><code>git clone &lt;your-repo&gt;
-cd store-platform
+cd store
 </code></pre>
 
 <h3>Project Structure</h3>
 
-<pre><code>store-platform/
+<pre><code>store/
  ├── backend/
  ├── frontend/
  └── helm/
@@ -165,11 +175,13 @@ node server.js
 <pre><code>Provisioning API running on port 5000
 </code></pre>
 
+Now open new terminal 
+
 <hr/>
 
 <h2>11. Frontend Setup</h2>
 
-<pre><code>cd store-platform/frontend
+<pre><code>cd store/frontend
 npm install
 npm start
 </code></pre>
@@ -291,9 +303,9 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-k3d cluster create store-platform --agents 2 -p "80:80@loadbalancer"
+k3d cluster create store --agents 2 -p "80:80@loadbalancer"
 git clone &lt;repo&gt;
-cd store-platform/backend
+cd store/backend
 npm install
 node server.js
 cd ../frontend
